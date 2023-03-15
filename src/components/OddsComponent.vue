@@ -5,7 +5,7 @@
     <ul>
       <li v-for="odds in plusOdds" :key="odds.id">
         <label>
-          <input type="radio" name="plus-odds" :value="odds" @click="selectOdds(odds.odds)">
+          <input type="radio" name="plus-odds" :value="odds" @click="selectOdds(odds.odds, odds.name)">
           {{ odds.name }} - {{ odds.odds }}
         </label>
       </li>
@@ -15,7 +15,7 @@
     <ul>
       <li v-for="odds in minusOdds" :key="odds.id">
         <label>
-          <input type="radio" name="plus-odds" :value="odds" @click="selectOdds(odds.odds)">
+          <input type="radio" name="plus-odds" :value="odds" @click="selectOdds(odds.odds, odds.name)">
           {{ odds.name }} - {{ odds.odds }}
         </label>
       </li>
@@ -25,11 +25,7 @@
       <label for="bet">Bet:</label>
       <input type="number" id="bet" v-model="betAmount" />
 
-      <button @click="calculateWinnings">Calculate Winnings</button>
-
-      <div>
-        Winnings: {{ winnings }}
-      </div>
+      <button @click="addBet">Add Bet</button>
     </div>
     </div>
   </div>
@@ -37,9 +33,11 @@
 
 <script>
 import { toRaw } from 'vue';
+import { mapActions } from 'vuex'
 
 export default {
   name: 'OddsComponent',
+
   computed: {
     plusOdds() {
       return toRaw(this.$store.getters.getPlusOdds.value);
@@ -57,24 +55,30 @@ export default {
   data() {
     return {
       selectedOdds: null,
+      selectedName: null,
       betAmount: null,
       winnings: null,
     };
   },
   methods: {
-    selectOdds(odds) {
+    ...mapActions(['addBetToList']),
+    selectOdds(odds, name) {
       this.selectedOdds = odds;
+      this.selectedName = name;
     },
-   calculateWinnings() {
-    console.log(this.openBets)
-  if (this.selectedOdds && this.betAmount) {
-    const odds = parseFloat(this.selectedOdds);
-    const isNegativeOdds = odds < 0;
-    const multiplier = isNegativeOdds ? (1 - 100 / Math.abs(odds)) : (1 + odds / 100);
-    const payout = this.betAmount * multiplier;
-    const totalPayout = payout.toFixed(2);
-    const winnings = (isNegativeOdds ? Math.abs(payout) : (payout - this.betAmount)).toFixed(2);
-    this.winnings = `${winnings} (${totalPayout})`;
+   addBet() {
+    if (this.selectedOdds && this.betAmount) {
+      const odds = parseFloat(this.selectedOdds);
+      const isNegativeOdds = odds < 0;
+      const multiplier = isNegativeOdds ? (1 - 100 / Math.abs(odds)) : (1 + odds / 100);
+      const payout = this.betAmount * multiplier;
+      const totalPayout = payout.toFixed(2);
+      const winnings = (isNegativeOdds ? Math.abs(payout) : (payout - this.betAmount)).toFixed(2);
+      this.winnings = `${winnings} (${totalPayout})`;
+
+      let openBet = { name: this.selectedName, odds: odds, bet: this.betAmount, payout: +totalPayout, disabled: false }
+      this.addBetToList(openBet)
+      this.$store.commit('betCredits', this.betAmount)
   } else {
     this.winnings = null;
   }

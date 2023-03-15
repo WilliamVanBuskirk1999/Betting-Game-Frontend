@@ -6,7 +6,8 @@ const ufcModule = {
   state: reactive({
     plusOdds: [],
     minusOdds: [],
-    openBets: ['test']
+    openBets: reactive([]),
+    credits: 1000
   }),
   mutations: {
     setPlusOdds(state, odds) {
@@ -16,7 +17,19 @@ const ufcModule = {
       state.minusOdds = odds;
     },
     setOpenBets(state, bets) {
-      state.openBets = bets;
+      state.openBets = bets.map((bet) => ({ ...bet, disabled: false }));
+    },
+    setCredits(state, credits) {
+      state.credits = credits;
+    },
+    addBetToList(state, bet) {
+      state.openBets = [...state.openBets, bet]
+    },
+    addCredits(state, credit) {
+      state.credits += +credit;
+    },
+    betCredits(state, credit) {
+      state.credits -= credit;
     }
   },
   actions: {
@@ -28,12 +41,16 @@ const ufcModule = {
       } catch (error) {
         console.log(error);
       }
-    },
+    },addBetToList({ commit }, newBet) {
+      commit('addBetToList', newBet)
+    }
+    
   },
   getters: {
     getPlusOdds: (state) => computed(() => state.plusOdds),
     getMinusOdds: (state) => computed(() => state.minusOdds),
-    getOpenBets: (state) => computed(() => state.openBets)
+    getOpenBets: (state) => computed(() => state.openBets),
+    getCredits: (state) => computed(() => Math.round(state.credits * 100) / 100)
   },
 };
 

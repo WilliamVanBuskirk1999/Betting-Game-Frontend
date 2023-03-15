@@ -1,14 +1,16 @@
 <template>
   <div id="app">
+    <h2>Credits Left {{ credits }}</h2>
     <odds-component></odds-component>
-    <open-bets-table :open-bets=openBets></open-bets-table>
+    <br/>
+    <OpenBetsTable></OpenBetsTable>
   </div>
 </template>
 
 <script>
 import OddsComponent from './components/OddsComponent.vue';
-import { OpenBetsTable } from './components/OpenBetsTable.vue'
-import { toRaw } from 'vue';
+import OpenBetsTable from './components/OpenBetsTable'
+
 
 export default {
   name: 'App',
@@ -17,9 +19,9 @@ export default {
     OpenBetsTable
   },
   computed: {
-    openBets() {
-      return toRaw(this.$store.getters.getOpenBets.value)
-    },
+    credits() {
+      return this.$store.getters.getCredits.value
+    }
   }
 };
 </script>
