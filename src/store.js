@@ -6,6 +6,7 @@ const ufcModule = {
   state: reactive({
     plusOdds: [],
     minusOdds: [],
+    openBets: ['test']
   }),
   mutations: {
     setPlusOdds(state, odds) {
@@ -14,6 +15,9 @@ const ufcModule = {
     setMinusOdds(state, odds) {
       state.minusOdds = odds;
     },
+    setOpenBets(state, bets) {
+      state.openBets = bets;
+    }
   },
   actions: {
     async fetchOdds({ commit }) {
@@ -29,6 +33,7 @@ const ufcModule = {
   getters: {
     getPlusOdds: (state) => computed(() => state.plusOdds),
     getMinusOdds: (state) => computed(() => state.minusOdds),
+    getOpenBets: (state) => computed(() => state.openBets)
   },
 };
 

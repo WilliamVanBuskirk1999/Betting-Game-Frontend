@@ -27,7 +27,7 @@
 
       <button @click="calculateWinnings">Calculate Winnings</button>
 
-      <div v-if="winnings > 0">
+      <div>
         Winnings: {{ winnings }}
       </div>
     </div>
@@ -47,6 +47,9 @@ export default {
     minusOdds() {
       return toRaw(this.$store.getters.getMinusOdds.value);
     },
+    openBets() {
+      return toRaw(this.$store.getters.getOpenBets.value)
+    },
     oddsDataReady() {
       return this.plusOdds.length && this.minusOdds.length;
     }
@@ -60,16 +63,22 @@ export default {
   },
   methods: {
     selectOdds(odds) {
-      this.selectedOdds = +odds.substring(1);
+      this.selectedOdds = odds;
     },
-    calculateWinnings() {
-      if (this.selectedOdds && this.betAmount) {
-        const payout = this.selectedOdds * this.betAmount;
-        this.winnings = payout.toFixed(2);
-      } else {
-        this.winnings = null;
-      }
-    },
+   calculateWinnings() {
+    console.log(this.openBets)
+  if (this.selectedOdds && this.betAmount) {
+    const odds = parseFloat(this.selectedOdds);
+    const isNegativeOdds = odds < 0;
+    const multiplier = isNegativeOdds ? (1 - 100 / Math.abs(odds)) : (1 + odds / 100);
+    const payout = this.betAmount * multiplier;
+    const totalPayout = payout.toFixed(2);
+    const winnings = (isNegativeOdds ? Math.abs(payout) : (payout - this.betAmount)).toFixed(2);
+    this.winnings = `${winnings} (${totalPayout})`;
+  } else {
+    this.winnings = null;
+  }
+},
   },
   mounted() {
     this.$store.dispatch('fetchOdds')
