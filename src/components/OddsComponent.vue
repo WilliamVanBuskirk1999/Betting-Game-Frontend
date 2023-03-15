@@ -1,18 +1,23 @@
 <template>
   <div>
-    <button @click="showOdds">Show Odds</button>
     <div v-if="oddsDataReady">
     <h1>Plus Odds</h1>
     <ul>
-      <li v-for="odds in plusOdds" :key="odds.id" @click="selectOdds(odds)">
-        {{ odds.name }} - {{ odds.value }}
+      <li v-for="odds in plusOdds" :key="odds.id">
+        <label>
+          <input type="radio" name="plus-odds" :value="odds" @click="selectOdds(odds.odds)">
+          {{ odds.name }} - {{ odds.odds }}
+        </label>
       </li>
     </ul>
 
     <h1>Minus Odds</h1>
     <ul>
-      <li v-for="odds in minusOdds" :key="odds.id" @click="selectOdds(odds)">
-        {{ odds.name }} - {{ odds.value }}
+      <li v-for="odds in minusOdds" :key="odds.id">
+        <label>
+          <input type="radio" name="plus-odds" :value="odds" @click="selectOdds(odds.odds)">
+          {{ odds.name }} - {{ odds.odds }}
+        </label>
       </li>
     </ul>
 
@@ -31,16 +36,16 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { toRaw } from 'vue';
 
 export default {
   name: 'OddsComponent',
   computed: {
-    ...mapGetters({
-      plusOdds: 'getPlusOdds',
-    }),
+    plusOdds() {
+      return toRaw(this.$store.getters.getPlusOdds.value);
+    },
     minusOdds() {
-      return this.$store.getters.getMinusOdds;
+      return toRaw(this.$store.getters.getMinusOdds.value);
     },
     oddsDataReady() {
       return this.plusOdds.length && this.minusOdds.length;
@@ -55,19 +60,15 @@ export default {
   },
   methods: {
     selectOdds(odds) {
-      this.selectedOdds = odds;
+      this.selectedOdds = +odds.substring(1);
     },
     calculateWinnings() {
       if (this.selectedOdds && this.betAmount) {
-        const payout = this.selectedOdds.value * this.betAmount;
+        const payout = this.selectedOdds * this.betAmount;
         this.winnings = payout.toFixed(2);
       } else {
         this.winnings = null;
       }
-    },
-    showOdds() {
-      console.log(this.$store.getters.getPlusOdds)
-      console.log(this.plusOdds)
     },
   },
   mounted() {
