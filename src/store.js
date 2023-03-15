@@ -1,91 +1,41 @@
-// in your store.js file
+import axios from 'axios';
+import { createStore } from 'vuex';
+import { reactive, computed } from 'vue';
 
-import Vuex from 'vuex'
-
-
-const store = new Vuex.Store({
-  state: {
-    bettingAmount: 0,
-    openBets: [],
-    webSocket: null
-  },
+const ufcModule = {
+  state: reactive({
+    plusOdds: [],
+    minusOdds: [],
+  }),
   mutations: {
-    SET_WEB_SOCKET(state, webSocket) {
-      state.webSocket = webSocket
+    setPlusOdds(state, odds) {
+      state.plusOdds = odds;
     },
-    ADD_OPEN_BET(state, openBet) {
-      state.openBets.push(openBet)
+    setMinusOdds(state, odds) {
+      state.minusOdds = odds;
     },
-    UPDATE_BETTING_AMOUNT(state, bettingAmount) {
-      state.bettingAmount = bettingAmount
-    },
-    UPDATE_ODDS(state, odds) {
-      state.odds = odds
-    }
   },
   actions: {
-    connectWebSocket({ commit }) {
-      const webSocket = new WebSocket('ws://localhost:8000')
-
-      webSocket.onopen = () => {
-        commit('SET_WEB_SOCKET', webSocket)
-      }
-
-      webSocket.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-        const messageType = data.type
-
-        if (messageType === 'openBet') {
-          commit('ADD_OPEN_BET', data.payload)
-        } else if (messageType === 'bettingAmount') {
-          commit('UPDATE_BETTING_AMOUNT', data.payload)
-        } else if (messageType === 'odds') {
-          commit('UPDATE_ODDS', data.payload)
-        }
+    async fetchOdds({ commit }) {
+      try {
+        const response = await axios.get('http://localhost:8000/ufc/mybookie');
+        commit('setPlusOdds', response.data[0]);
+        commit('setMinusOdds', response.data[1]);
+      } catch (error) {
+        console.log(error);
       }
     },
-    placeBet({ state }, { betAmount, odds, name }) {
-      const currentTotal = state.bettingAmount
+  },
+  getters: {
+    getPlusOdds: (state) => computed(() => state.plusOdds),
+    getMinusOdds: (state) => computed(() => state.minusOdds),
+  },
+};
 
-      if (currentTotal > 0) {
-        if (odds.startsWith('-')) {
-          const newTotal = currentTotal - betAmount
-          state.bettingAmount = Math.trunc(newTotal * 100) / 100
-          const oddsToCalc = odds.substring(1)
-          const unRounded = (100 / oddsToCalc) * betAmount
+const store = createStore({
+  modules: {
+    ufc: ufcModule,
+  },
+});
 
-          const payout = Math.trunc(unRounded * 100) / 100
-
-          const openBet = { name, bet: betAmount, payout }
-          state.openBets.push(openBet)
-
-          const webSocket = state.webSocket
-
-          if (webSocket && webSocket.readyState === WebSocket.OPEN) {
-            const message = JSON.stringify({ type: 'openBet', payload: openBet })
-            webSocket.send(message)
-          }
-        } else if (odds.startsWith('+')) {
-          const newTotal = currentTotal - betAmount
-          state.bettingAmount = Math.trunc(newTotal * 100) / 100
-          const oddsToCalc = odds.substring(1)
-          const unRounded = betAmount * (oddsToCalc / 100)
-
-          const payout = Math.trunc(unRounded * 100) / 100
-
-          const openBet = { name, bet: betAmount, payout }
-          state.openBets.push(openBet)
-
-          const webSocket = state.webSocket
-
-          if (webSocket && webSocket.readyState === WebSocket.OPEN) {
-            const message = JSON.stringify({ type: 'openBet', payload: openBet })
-            webSocket.send(message)
-          }
-        }
-      }
-    }
-  }
-})
-
-export default store
+export default store;

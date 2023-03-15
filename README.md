@@ -1,4 +1,4 @@
-# betting-game-vue3
+# betting-game-proto
 
 ## Project setup
 ```
