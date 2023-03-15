@@ -1,6 +1,8 @@
 <template>
   <div>
-    <div v-if="oddsDataReady">
+    <input type="text" v-model="name" :hidden="hideName"/>
+    <button @click="setName" :hidden="hideName">Enter</button>
+    <div v-if="oddsDataReady" :hidden="hideGame">
     <h1>Plus Odds</h1>
     <ul>
       <li v-for="odds in plusOdds" :key="odds.id">
@@ -35,6 +37,7 @@
 import { toRaw } from 'vue';
 import { mapActions } from 'vuex'
 
+
 export default {
   name: 'OddsComponent',
 
@@ -58,6 +61,9 @@ export default {
       selectedName: null,
       betAmount: null,
       winnings: null,
+      name: null,
+      hideName: false,
+      hideGame: true
     };
   },
   methods: {
@@ -76,13 +82,17 @@ export default {
       const winnings = (isNegativeOdds ? Math.abs(payout) : (payout - this.betAmount)).toFixed(2);
       this.winnings = `${winnings} (${totalPayout})`;
 
-      let openBet = { name: this.selectedName, odds: odds, bet: this.betAmount, payout: +totalPayout, disabled: false }
+      let openBet = { name: this.selectedName, odds: odds, bet: this.betAmount, payout: +totalPayout, disabled: false, player: this.name }
       this.addBetToList(openBet)
       this.$store.commit('betCredits', this.betAmount)
-  } else {
-    this.winnings = null;
+    } else {
+      this.winnings = null;
+    }
+  },
+  setName() {
+    this.hideName = true;
+    this.hideGame = false;
   }
-},
   },
   mounted() {
     this.$store.dispatch('fetchOdds')
