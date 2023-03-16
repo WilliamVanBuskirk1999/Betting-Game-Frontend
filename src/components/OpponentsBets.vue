@@ -2,22 +2,22 @@
     <table id="openBets">
         <thead>
             <tr>
+            <th>Player</th>
             <th>Name</th>
             <th>Bet</th>
             <th>Odds</th>
             <th>Potential Winnings</th>
-            <th></th>
-            <th></th>
+            <th>Result</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="(bet, i) in openBets" :key=i>
+                <td>{{bet.player}}</td>
                 <td>{{ bet.name }}</td>
                 <td> {{ bet.bet }}</td>
                 <td> {{ bet.odds }}</td>
                 <td> {{ bet.payout }}</td>
-                <td><button @click="winBet(bet)" :disabled="bet.disabled">Win Bet</button></td>
-                <td><button @click="loseBet(bet)" :disabled="bet.disabled">Lose bet :(</button></td>
+                <td>{{ bet.result }}</td>
             </tr>
         </tbody>
     </table>
@@ -25,10 +25,16 @@
 
 
 <script>
+import io from 'socket.io-client';
+const socket = io('https://betting-api.onrender.com/');
+
 export default {
-    name: 'OpenBetsTable',
+    name: 'OpponentBets',
     computed: {
         openBets() {
+            return this.$store.state.ufc.opponentBets.filter(b => b.player !== this.$store.state.ufc.name);
+        },
+        usersBets() {
             return this.$store.state.ufc.openBets;
         },
     },
@@ -36,19 +42,16 @@ export default {
         refreshTable() {
             this.$forceUpdate()
         },
-        winBet(i) {
-            this.$store.commit('addCredits', i.payout)
-            i.disabled = true
-            
-        },
-        loseBet(i) {
-            i.disabled = true
-        }
     },
     watch: {
         openBets() {
             this.refreshTable()
         }
+    },
+    mounted() {
+        socket.on('betAdded', (newBet) => {
+            this.$store.commit('addBetToOpponentsList', newBet)
+        })
     }
 }
 </script>
@@ -57,7 +60,7 @@ export default {
 #openBets {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
-  width: 90%;
+  width: 80%;
 }
 
 #openBets td, #openBets th {
@@ -73,7 +76,7 @@ export default {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  background-color: #04AA6D;
+  background-color: #E3242B;
   color: white;
 }
 </style>
