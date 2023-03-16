@@ -7,6 +7,7 @@
             <th>Bet</th>
             <th>Odds</th>
             <th>Potential Winnings</th>
+            <th>Result</th>
             </tr>
         </thead>
         <tbody>
@@ -16,6 +17,7 @@
                 <td> {{ bet.bet }}</td>
                 <td> {{ bet.odds }}</td>
                 <td> {{ bet.payout }}</td>
+                <td>{{ bet.result }}</td>
             </tr>
         </tbody>
     </table>
@@ -24,13 +26,13 @@
 
 <script>
 import io from 'socket.io-client';
-const socket = io('http://192.168.2.38:8000');
+const socket = io('https://betting-api.onrender.com/');
 
 export default {
     name: 'OpponentBets',
     computed: {
         openBets() {
-            return this.$store.state.ufc.opponentBets
+            return this.$store.state.ufc.opponentBets.filter(b => b.player !== this.$store.state.ufc.name);
         },
         usersBets() {
             return this.$store.state.ufc.openBets;
@@ -58,7 +60,7 @@ export default {
 #openBets {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
-  width: 100%;
+  width: 80%;
 }
 
 #openBets td, #openBets th {
@@ -74,7 +76,7 @@ export default {
   padding-top: 12px;
   padding-bottom: 12px;
   text-align: left;
-  background-color: #04AA6D;
+  background-color: #E3242B;
   color: white;
 }
 </style>

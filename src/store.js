@@ -3,7 +3,7 @@ import { createStore } from 'vuex';
 import { reactive, computed } from 'vue';
 import io from 'socket.io-client';
 
-const socket = io('http://localhost:8000');
+const socket = io('https://betting-api.onrender.com/');
 
 const ufcModule = {
   state: reactive({
@@ -12,6 +12,7 @@ const ufcModule = {
     openBets: reactive([]),
     opponentBets: reactive([]),
     leaderBoard: reactive([]),
+    name: null,
     credits: 1000
   }),
   mutations: {
@@ -26,6 +27,9 @@ const ufcModule = {
     },
     setCredits(state, credits) {
       state.credits = credits;
+    },
+    setName(state, name) {
+      state.name = name;
     },
     setOpponentBets(state, bets) {
       state.opponentBets = bets.map((bet) => ({...bet}))
@@ -52,7 +56,7 @@ const ufcModule = {
   actions: {
     async fetchOdds({ commit }) {
       try {
-        const response = await axios.get('http://192.168.2.38:8000/ufc/mybookie');
+        const response = await axios.get('https://betting-api.onrender.com/ufc/mybookie');
         commit('setPlusOdds', response.data[0]);
         commit('setMinusOdds', response.data[1]);
       } catch (error) {
@@ -64,8 +68,10 @@ const ufcModule = {
       socket.emit('newBet', newBet)
     },addBetToOpponentsList({ commit }, newBet) {
       commit('addBetToOpponentsList', newBet)
-    },addNameToLeaderBoard({ commit }, name) {
+    },addNameToLeaderBoardStore({ commit }, name) {
       commit('addNameToLeaderBoard', name)
+
+      socket.emit('nameAdded', name)
     }
     
     
@@ -75,7 +81,8 @@ const ufcModule = {
     getMinusOdds: (state) => computed(() => state.minusOdds),
     getOpenBets: (state) => computed(() => state.openBets),
     getCredits: (state) => computed(() => Math.round(state.credits * 100) / 100),
-    getLeaderBoard: (state) => computed(() => state.leaderBoard)
+    getLeaderBoard: (state) => computed(() => state.leaderBoard),
+    getName: (state) => computed(() => state.name)
   },
 };
 

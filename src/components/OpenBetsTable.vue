@@ -57,7 +57,7 @@ export default {
 #openBets {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
-  width: 100%;
+  width: 90%;
 }
 
 #openBets td, #openBets th {
