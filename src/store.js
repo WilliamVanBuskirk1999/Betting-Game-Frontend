@@ -35,7 +35,7 @@ const ufcModule = {
   actions: {
     async fetchOdds({ commit }) {
       try {
-        const response = await axios.get('http://localhost:8000/ufc/mybookie');
+        const response = await axios.get('https://betting-api.onrender.com/ufc/mybookie');
         commit('setPlusOdds', response.data[0]);
         commit('setMinusOdds', response.data[1]);
       } catch (error) {
