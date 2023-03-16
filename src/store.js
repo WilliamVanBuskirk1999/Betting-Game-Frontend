@@ -11,6 +11,7 @@ const ufcModule = {
     minusOdds: [],
     openBets: reactive([]),
     opponentBets: reactive([]),
+    leaderBoard: reactive([]),
     credits: 1000
   }),
   mutations: {
@@ -28,6 +29,12 @@ const ufcModule = {
     },
     setOpponentBets(state, bets) {
       state.opponentBets = bets.map((bet) => ({...bet}))
+    },
+    setLeaderBoard(state, names) {
+      state.leaderBoard = names.map((name) => ({...name}))
+    },
+    addNameToLeaderBoard(state, name) {
+      state.leaderBoard = [...state.leaderBoard, name]
     },
     addBetToList(state, bet) {
       state.openBets = [...state.openBets, bet]
@@ -57,6 +64,8 @@ const ufcModule = {
       socket.emit('newBet', newBet)
     },addBetToOpponentsList({ commit }, newBet) {
       commit('addBetToOpponentsList', newBet)
+    },addNameToLeaderBoard({ commit }, name) {
+      commit('addNameToLeaderBoard', name)
     }
     
     
@@ -65,7 +74,8 @@ const ufcModule = {
     getPlusOdds: (state) => computed(() => state.plusOdds),
     getMinusOdds: (state) => computed(() => state.minusOdds),
     getOpenBets: (state) => computed(() => state.openBets),
-    getCredits: (state) => computed(() => Math.round(state.credits * 100) / 100)
+    getCredits: (state) => computed(() => Math.round(state.credits * 100) / 100),
+    getLeaderBoard: (state) => computed(() => state.leaderBoard)
   },
 };
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <input type="text" v-model="name" :hidden="hideName"/>
-    <button @click="setName" :hidden="hideName">Enter</button>
+    <button @click="nameAdded" :hidden="hideName">Enter</button>
     <div v-if="oddsDataReady" :hidden="hideGame">
     <h1>Plus Odds</h1>
     <ul>
@@ -36,7 +36,8 @@
 <script>
 import { toRaw } from 'vue';
 import { mapActions } from 'vuex'
-
+import io from 'socket.io-client';
+const socket = io('http://192.168.2.38:8000');
 
 export default {
   name: 'OddsComponent',
@@ -89,13 +90,16 @@ export default {
       this.winnings = null;
     }
   },
-  setName() {
+  nameAdded() {
     this.hideName = true;
     this.hideGame = false;
   }
   },
   mounted() {
     this.$store.dispatch('fetchOdds')
+    socket.on('addNameToLeaderBoard', (name) => {
+      this.$store.commit('addNameToLeaderBoard', name)
+    })
   }
 };
 </script>
