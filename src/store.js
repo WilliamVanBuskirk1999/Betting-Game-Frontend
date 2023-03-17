@@ -2,8 +2,9 @@ import axios from 'axios';
 import { createStore } from 'vuex';
 import { reactive, computed } from 'vue';
 import io from 'socket.io-client';
+import createPersistedState from 'vuex-persistedstate';
 
-const socket = io('https://betting-api.onrender.com');
+const socket = io('http://192.168.2.38:8000');
 
 const ufcModule = {
   state: reactive({
@@ -37,8 +38,14 @@ const ufcModule = {
     setLeaderBoard(state, names) {
       state.leaderBoard = names.map((name) => ({...name}))
     },
-    addNameToLeaderBoard(state, name) {
+    addNameToLeaderBoardStore(state, name) {
       state.leaderBoard = [...state.leaderBoard, name]
+    },
+    updateLeaderBoardStore(state, nameOfPlayer) {
+      state.leaderBoard.filter((player) => {
+        return player.name === nameOfPlayer.name; 
+      })[0].credits = nameOfPlayer.credits.toFixed(2)
+
     },
     addBetToList(state, bet) {
       state.openBets = [...state.openBets, bet]
@@ -46,6 +53,9 @@ const ufcModule = {
     addBetToOpponentsList(state, bet) {
       state.opponentBets = [...state.opponentBets, bet]
     },
+    // updateOpponentsListStore(state, bet) {
+      
+    // },
     addCredits(state, credit) {
       state.credits += +credit;
     },
@@ -56,7 +66,7 @@ const ufcModule = {
   actions: {
     async fetchOdds({ commit }) {
       try {
-        const response = await axios.get('https://betting-api.onrender.com/ufc/mybookie');
+        const response = await axios.get('http://192.168.2.38:8000/ufc/mybookie');
         commit('setPlusOdds', response.data[0]);
         commit('setMinusOdds', response.data[1]);
       } catch (error) {
@@ -68,10 +78,20 @@ const ufcModule = {
       socket.emit('newBet', newBet)
     },addBetToOpponentsList({ commit }, newBet) {
       commit('addBetToOpponentsList', newBet)
-    },addNameToLeaderBoardStore({ commit }, name) {
+    },addNameToLeaderBoard({ commit }, name) {
       commit('addNameToLeaderBoard', name)
 
       socket.emit('nameAdded', name)
+    },
+    updateLeaderBoard({ commit }, name) {
+      commit('updateLeaderBoard', name);
+
+      socket.emit('updateLeaderBoard', name)
+    },
+    updateOpponentsList({ commit }, bet) {
+      commit('updateOpponentsList', bet)
+
+      socket.emit('updateOpponentsResults', bet)
     }
     
     
@@ -90,6 +110,7 @@ const store = createStore({
   modules: {
     ufc: ufcModule,
   },
+  plugins: [createPersistedState()],
 });
 
 export default store;

@@ -26,7 +26,7 @@
 
 <script>
 import io from 'socket.io-client';
-const socket = io('https://betting-api.onrender.com/');
+const socket = io('http://192.168.2.38:8000/');
 
 export default {
     name: 'OpponentBets',
@@ -51,6 +51,9 @@ export default {
     mounted() {
         socket.on('betAdded', (newBet) => {
             this.$store.commit('addBetToOpponentsList', newBet)
+        })
+        socket.on('updateOpponentsResultsBackEnd', (bet) => {
+            this.$store.commit('updateOpponentsListStore', bet)
         })
     }
 }
