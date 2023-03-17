@@ -3,7 +3,7 @@ import { createStore } from 'vuex';
 import { reactive, computed } from 'vue';
 import io from 'socket.io-client';
 
-const socket = io('https://betting-api.onrender.com/');
+const socket = io('https://betting-api.onrender.com');
 
 const ufcModule = {
   state: reactive({
