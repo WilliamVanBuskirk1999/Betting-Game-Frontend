@@ -93,7 +93,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions(["addBetToList", "addNameToLeaderBoardStore"]),
+    ...mapActions(["addBetToList", "addNameToLeaderBoard","updateLeaderBoard"]),
     selectOdds(odds, name) {
       this.selectedOdds = odds;
       this.selectedName = name;
@@ -106,7 +106,7 @@ export default {
           ? 1 - 100 / Math.abs(odds)
           : 1 + odds / 100;
         const payout = this.betAmount * multiplier;
-        const totalPayout = payout.toFixed(2);
+        const totalPayout = +payout.toFixed(2) + +this.betAmount.toFixed(2);
         const winnings = (
           isNegativeOdds ? Math.abs(payout) : payout - this.betAmount
         ).toFixed(2);
@@ -116,12 +116,17 @@ export default {
           name: this.selectedName,
           odds: odds,
           bet: this.betAmount,
-          payout: +totalPayout,
+          payout: totalPayout.toFixed(2),
           disabled: false,
-          player: this.name,
+          player: this.$store.state.ufc.name,
         };
         this.addBetToList(openBet);
         this.$store.commit("betCredits", this.betAmount);
+
+        this.updateLeaderBoard({
+          name: this.$store.state.ufc.name,
+          credits: this.$store.state.ufc.credits
+        })
       } else {
         this.winnings = null;
       }
@@ -130,7 +135,7 @@ export default {
       this.hideName = true;
       this.hideGame = false;
       this.$store.commit("setName", this.name);
-      this.addNameToLeaderBoardStore({
+      this.addNameToLeaderBoard({
         name: this.name,
         credits: this.$store.state.ufc.credits,
       });
@@ -140,7 +145,6 @@ export default {
     this.$store.dispatch("fetchOdds");
     socket.on("addNameToLeaderBoard", (name) => {
       this.$store.commit("addNameToLeaderBoardStore", name);
-      console.log("We have hit the console in the webapp", name);
     });
   },
 };

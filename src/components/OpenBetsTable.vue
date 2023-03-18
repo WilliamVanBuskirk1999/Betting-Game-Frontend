@@ -25,6 +25,10 @@
 
 
 <script>
+import io from "socket.io-client";
+import { mapActions } from "vuex";
+const socket = io("https://betting-api.onrender.com");
+
 export default {
     name: 'OpenBetsTable',
     computed: {
@@ -33,11 +37,16 @@ export default {
         },
     },
     methods: {
+        ...mapActions(["updateLeaderBoard", "updateOpponentsList"]),
         refreshTable() {
             this.$forceUpdate()
         },
         winBet(i) {
             this.$store.commit('addCredits', i.payout)
+            this.updateLeaderBoard({ 
+                name: this.$store.state.ufc.name,
+                credits: this.$store.state.ufc.credits
+            })
             i.disabled = true
             
         },
@@ -49,6 +58,11 @@ export default {
         openBets() {
             this.refreshTable()
         }
+    },
+    mounted() {
+        socket.on('leaderBoardUpdateBackEnd', (name) => {
+            this.$store.commit('updateLeaderBoardStore', name)
+        })
     }
 }
 </script>

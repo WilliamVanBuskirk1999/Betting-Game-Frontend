@@ -21,7 +21,7 @@ export default {
     name: 'Leaderboard',
     computed: {
         leaderBoard() {
-            return this.$store.state.ufc.leaderBoard;
+            return this.$store.state.ufc.leaderBoard.slice().sort((a,b) => b.credits - a.credits);
         }
     }
 }

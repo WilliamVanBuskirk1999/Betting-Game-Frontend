@@ -52,6 +52,9 @@ export default {
         socket.on('betAdded', (newBet) => {
             this.$store.commit('addBetToOpponentsList', newBet)
         })
+        socket.on('updateOpponentsResultsBackEnd', (bet) => {
+            this.$store.commit('updateOpponentsListStore', bet)
+        })
     }
 }
 </script>
