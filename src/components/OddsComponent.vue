@@ -58,7 +58,7 @@
 import { toRaw } from "vue";
 import { mapActions } from "vuex";
 import io from "socket.io-client";
-const socket = io("http://192.168.2.38:8000");
+const socket = io("https://betting-api.onrender.com");
 
 export default {
   name: "OddsComponent",
@@ -118,7 +118,7 @@ export default {
           bet: this.betAmount,
           payout: totalPayout.toFixed(2),
           disabled: false,
-          player: this.name,
+          player: this.$store.state.ufc.name,
         };
         this.addBetToList(openBet);
         this.$store.commit("betCredits", this.betAmount);

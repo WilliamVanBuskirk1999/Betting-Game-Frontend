@@ -4,7 +4,7 @@ import { reactive, computed } from 'vue';
 import io from 'socket.io-client';
 import createPersistedState from 'vuex-persistedstate';
 
-const socket = io('http://192.168.2.38:8000');
+const socket = io('https://betting-api.onrender.com');
 
 const ufcModule = {
   state: reactive({
@@ -66,7 +66,7 @@ const ufcModule = {
   actions: {
     async fetchOdds({ commit }) {
       try {
-        const response = await axios.get('http://192.168.2.38:8000/ufc/mybookie');
+        const response = await axios.get('https://betting-api.onrender.com/ufc/mybookie');
         commit('setPlusOdds', response.data[0]);
         commit('setMinusOdds', response.data[1]);
       } catch (error) {

@@ -27,7 +27,7 @@
 <script>
 import io from "socket.io-client";
 import { mapActions } from "vuex";
-const socket = io("http://192.168.2.38:8000");
+const socket = io("https://betting-api.onrender.com");
 
 export default {
     name: 'OpenBetsTable',
